@@ -1,2 +1,7 @@
-# PyCharm project guff
+# Miscellaneous Python bits
 .idea/
+__pycache__
+*.pyc
+
+# Discord bot keys
+keys.py
