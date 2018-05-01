@@ -19,17 +19,17 @@ async def on_ready():
     for s in client.servers:
         print('- %s' % s.name)
     print('----------')
-    logpath = "/logs"
+    logpath = "./logs"
     if not os.path.isdir(logpath):
         print("Log folder not found")
         print("Creating directory")
         os.makedirs(logpath)
         print("Log directory created, creating log files")
-        f = open("%/logs/channels.log","w+")
+        f = open("./logs/channels.log","w+")
         f.write("# Channel logs")
         f.close()
         print("- Channels")
-        f = open("%/logs/users.log","w+")
+        f = open("./logs/users.log","w+")
         f.write("# User logs")
         f.close()
         print("- Users")
