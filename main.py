@@ -10,6 +10,7 @@ description = "It is by will alone I set my mind in motion"
 
 client = discord.Client()
 
+
 @client.event
 async def on_ready():
     print('Logged in as')
@@ -35,25 +36,25 @@ async def on_ready():
         print("- Users")
         print("File creation complete")
         print("----------")
-    else:
         print("Robomentat ready to serve")
 
-    # chan = open("/logs/channels.log","rw")
-    # users = open("/logs/users.log","rw")
-    # if chan.readline() == "\# Channel logs" and users.readline() == "\# User logs":
-    #     print("Logs found and correct")
-    #     print("----------")
-    #     chan.close()
-    #     users.close()
-    # else:
-    #     print("Log files found but content not recognised. Overwrite?")
-    #     ow = input("y/n: ")
-    #     if ow.lower() == "y":
-    #         print("Overwriting")
-    #         chan.write("\# Channel logs")
-    #         chan.close()
-    #         users.write("\# User logs")
-    #         users.close()
+    try:
+        chan = open("./logs/channels.log","r")
+        users = open("./logs/users.log","r")
+        print("Logs found")
+        print("----------")
+        print("Robomentat ready to serve")
+    except IOError:
+        chan = open("./logs/channels.log", "w+")
+        users = open("./logs/users.log", "w+")
+        print("Log files not found\nCreating log files")
+        chan.write("# Channel logs")
+        chan.close()
+        users.write("# User logs")
+        users.close()
+        print("Logs created")
+        print("----------")
+        print("Robomentat ready to serve")
 
 
 
