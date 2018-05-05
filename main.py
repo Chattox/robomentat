@@ -56,11 +56,11 @@ async def on_ready():
         print("Creating directory")
         os.makedirs(logpath)
         print("Log directory created, creating log files")
-        f = open("./logs/channels.log", "w+")
+        f = open(keys.chanlogdir, "w+")
         f.write("# Channel logs")
         f.close()
         print("- Channels")
-        f = open("./logs/users.log", "w+")
+        f = open(keys.userlogdir, "w+")
         f.write("# User logs")
         f.close()
         print("- Users")
@@ -68,15 +68,16 @@ async def on_ready():
         print("----------")
         print("Robomentat ready to serve")
 
+    # Check the log files exist, if not then create
     try:
-        chan = open("./logs/channels.log", "r")
-        users = open("./logs/users.log", "r")
+        chan = open(keys.chanlogdir, "r")
+        users = open(keys.userlogdir, "r")
         print("Logs found")
         print("----------")
         print("Robomentat ready to serve")
     except IOError:
-        chan = open("./logs/channels.log", "w+")
-        users = open("./logs/users.log", "w+")
+        chan = open(keys.chanlogdir, "w+")
+        users = open(keys.userlogdir, "w+")
         print("Log files not found\nCreating log files")
         chan.write("# Channel logs")
         chan.close()
@@ -86,7 +87,19 @@ async def on_ready():
         print("----------")
         print("Robomentat ready to serve")
 
-    # Get
+    # Get list of users
+    # First loop through each server the bot is a part of, and pick out the specific server we want
+    for s in client.servers:
+        if s.id == keys.serverid:
+            for user in s.members: # Then run through each member on the server and add it to a list.
+                with open(keys.userlogdir, "a+") as userlog:
+                    contents = userlog.read()
+                    if user.id in contents:
+                        print("User", user.name, "already present")
+                    else:
+                        userlog.write(user.name+","+user.id+"\n")
+                        print(user.name, "is new, writing to file")
+
 
 
 client.run(keys.key)
