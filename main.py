@@ -66,7 +66,6 @@ async def on_ready():
         print("- Users")
         print("File creation complete")
         print("----------")
-        print("Robomentat ready to serve")
 
     # Check the log files exist, if not then create
     try:
@@ -74,7 +73,6 @@ async def on_ready():
         users = open(keys.userlogdir, "r")
         print("Logs found")
         print("----------")
-        print("Robomentat ready to serve")
     except IOError:
         chan = open(keys.chanlogdir, "w+")
         users = open(keys.userlogdir, "w+")
@@ -85,7 +83,6 @@ async def on_ready():
         users.close()
         print("Logs created")
         print("----------")
-        print("Robomentat ready to serve")
 
     # Get list of users
     # First loop through each server the bot is a part of, and pick out the specific server we want
@@ -94,14 +91,13 @@ async def on_ready():
             for user in s.members: # Then run through each member on the server and add it to a list.
                 userlog = open(keys.userlogdir, "r")
                 contents = userlog.read()
-                print(user.name, user.id)
                 if user.id in contents:
                     print("User", user.name, "already present")
                     userlog.close()
                 else:
                     userlog.close()
                     userlog = open(keys.userlogdir, "a")
-                    userlog.write(user.name+", "+user.id+"\n")
+                    userlog.write(user.name+","+user.id+"\n")
                     print(user.name, "is new, writing to file")
                     userlog.close()
 
