@@ -92,13 +92,18 @@ async def on_ready():
     for s in client.servers:
         if s.id == keys.serverid:
             for user in s.members: # Then run through each member on the server and add it to a list.
-                with open(keys.userlogdir, "a+") as userlog:
-                    contents = userlog.read()
-                    if user.id in contents:
-                        print("User", user.name, "already present")
-                    else:
-                        userlog.write(user.name+","+user.id+"\n")
-                        print(user.name, "is new, writing to file")
+                userlog = open(keys.userlogdir, "r")
+                contents = userlog.read()
+                print(user.name, user.id)
+                if user.id in contents:
+                    print("User", user.name, "already present")
+                    userlog.close()
+                else:
+                    userlog.close()
+                    userlog = open(keys.userlogdir, "a")
+                    userlog.write(user.name+", "+user.id+"\n")
+                    print(user.name, "is new, writing to file")
+                    userlog.close()
 
 
 
