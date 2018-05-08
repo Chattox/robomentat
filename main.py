@@ -18,6 +18,7 @@ description = "It is by will alone I set my mind in motion"
 
 client = discord.Client()
 
+
 # User object
 class User:
     def __init__(self, userid):
@@ -37,7 +38,8 @@ class Channel:
     name = ''
     # Whether the channel is voice or text
     isVoice = ''
-    usage = {} # Just the one dict here, since time spent and messages sent are essentially the same
+    usage = {}  # Just the one dict here, since time spent and messages sent are essentially the same
+
 
 @client.event
 async def on_ready():
@@ -73,6 +75,8 @@ async def on_ready():
         users = open(keys.userlogdir, "r")
         print("Logs found")
         print("----------")
+        chan.close()
+        users.close()
     except IOError:
         chan = open(keys.chanlogdir, "w+")
         users = open(keys.userlogdir, "w+")
@@ -86,21 +90,39 @@ async def on_ready():
 
     # Get list of users
     # First loop through each server the bot is a part of, and pick out the specific server we want
+
+    userPairs = {}
+    userPairsFile = {}
     for s in client.servers:
         if s.id == keys.serverid:
-            for user in s.members: # Then run through each member on the server and add it to a list.
-                userlog = open(keys.userlogdir, "r")
-                contents = userlog.read()
-                if user.id in contents:
-                    print("User", user.name, "already present")
-                    userlog.close()
-                else:
-                    userlog.close()
-                    userlog = open(keys.userlogdir, "a")
-                    userlog.write(user.name+","+user.id+"\n")
-                    print(user.name, "is new, writing to file")
-                    userlog.close()
+            for user in s.members:  # Load up userPairs
+                userPairs[user.id] = user.name
+            userfile = open(keys.userlogdir, "r")
+            for line in userfile:  # Load up userPairsFile
+                userid, username = line.split(",")
+                username = username.replace("\n", "")
+                userPairsFile[userid] = username
+            userfile.close()
 
+            # Then compare userPairs and userPairsFile, updating userPairsFile accordingly.
+            for u in userPairs:
+                try:
+                    if userPairs[u] == userPairsFile[u]:
+                        print(userPairs[u], "found:")
+                except KeyError:
+                    print("New user:", userPairs[u], "adding to database.")
+                    userPairsFile[u] = userPairs[u]
+                if userPairs[u] == userPairsFile[u]:
+                    print(userPairs[u], "up to date.")
+                else:
+                    print("User mismatch:", userPairs[u], "was", userPairsFile[u] + ". Updating")
+                    userPairsFile[u] = userPairs[u]
+            # Then write the new updated userPairs to file
+            userfile = open(keys.userlogdir, "w")
+            for u in userPairs:
+                userfile.write(u+","+userPairsFile[u]+"\n")
+            userfile.close()
+            print("Complete")
 
 
 client.run(keys.key)
