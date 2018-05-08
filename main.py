@@ -9,7 +9,7 @@ import logging
 
 # Set error logging
 logger = logging.getLogger('discord')
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename='./logs/robomentat.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
@@ -122,7 +122,7 @@ async def on_ready():
             for u in userPairs:
                 userfile.write(u+","+userPairsFile[u]+"\n")
             userfile.close()
-            print("Complete")
+            print("User file check complete")
 
 
 client.run(keys.key)
