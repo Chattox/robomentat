@@ -6,6 +6,7 @@ import discord
 import os
 import keys
 import logging
+import pickle
 
 # Set error logging
 logger = logging.getLogger('discord')
@@ -17,6 +18,8 @@ logger.addHandler(handler)
 description = "It is by will alone I set my mind in motion"
 
 client = discord.Client()
+userManifest = {}
+channelManifest = {}  # These are dicts of the user and channel objects respectively
 
 
 # User object
@@ -80,10 +83,12 @@ async def on_ready():
     except IOError:
         chan = open(keys.chanlogdir, "w+")
         users = open(keys.userlogdir, "w+")
+        pickle.dump("", open(keys.usermanifestdir, "wb+"))
+        pickle.dump("", open(keys.chanmanifestdir, "wb+"))
         print("Log files not found\nCreating log files")
-        chan.write("# Channel logs")
+        chan.write("")
         chan.close()
-        users.write("# User logs")
+        users.write("")
         users.close()
         print("Logs created")
         print("----------")
@@ -93,6 +98,7 @@ async def on_ready():
 
     userPairs = {}
     userPairsFile = {}
+    userManifest = {}
     for s in client.servers:
         if s.id == keys.serverid:
             for user in s.members:  # Load up userPairs
@@ -105,6 +111,7 @@ async def on_ready():
             userfile.close()
 
             # Then compare userPairs and userPairsFile, updating userPairsFile accordingly.
+            updated = 0
             for u in userPairs:
                 try:
                     if userPairs[u] == userPairsFile[u]:
@@ -112,17 +119,32 @@ async def on_ready():
                 except KeyError:
                     print("New user:", userPairs[u], "adding to database.")
                     userPairsFile[u] = userPairs[u]
+                    userManifest[u] = User(u)
+                    userManifest[u].name = userPairs[u]
+                    updated = 1
                 if userPairs[u] == userPairsFile[u]:
                     print(userPairs[u], "up to date.")
                 else:
                     print("User mismatch:", userPairs[u], "was", userPairsFile[u] + ". Updating")
                     userPairsFile[u] = userPairs[u]
+                    userManifest[u].name = userPairs[u]
+                    updated = 1
             # Then write the new updated userPairs to file
-            userfile = open(keys.userlogdir, "w")
-            for u in userPairs:
-                userfile.write(u+","+userPairsFile[u]+"\n")
-            userfile.close()
-            print("User file check complete")
+            if updated > 0:
+                userfile = open(keys.userlogdir, "w")
+                for u in userPairs:
+                    userfile.write(u+","+userPairsFile[u]+"\n")
+                userfile.close()
+                with open(keys.usermanifestdir, "wb") as f:
+                    pickle.dump(userManifest, f)
+                print("User file check complete")
+            else:
+                print("User file check complete, no updates required.")
+
+            with open(keys.usermanifestdir, "rb") as f:
+                userManifest = pickle.load(f)
+                for i in userManifest:
+                    print(userManifest[i].userid, userManifest[i].name)
 
 
 client.run(keys.key)
