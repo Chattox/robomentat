@@ -24,7 +24,6 @@ client = discord.Client()
 class User:
     def __init__(self, userid):
         self.userid = userid
-
     name = ''
     # Two dictionaries, voice stores channel name : time spent in it,
     # text stores channel name : # of messages sent
@@ -101,11 +100,18 @@ async def on_ready():
             for user in s.members:
                 userDict[user.id] = User(user.id)  # Create new user object with the member ID
                 userDict[user.id].name = user.name  # Update user object with their Discord name
-            print("userDict:\n", userDict)
+                userDict[user.id].id = user.id
             # Then, generate userDictFile from the save file we already have
+            with open(keys.userdir, "wb") as f:
+                pickle.dump(userDict, f)
             with open(keys.userdir, "rb") as f:
                 userDictFile = pickle.load(f)
-                print("userDictFile:\n", userDictFile)
+                print("User manifest:")
+                for user in userDictFile:
+                    print(userDictFile[user].name)
+                    print(userDictFile[user].userid)
+                    print("---")
+
 
 
 
