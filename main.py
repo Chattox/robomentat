@@ -11,7 +11,12 @@ import pickle
 # Set error logging
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
-handler = logging.FileHandler(filename='./logs/robomentat.log', encoding='utf-8', mode='w')
+try:
+    f = open("robomentat.log", "x")
+    f.close()
+except FileExistsError:
+    pass
+handler = logging.FileHandler(filename='robomentat.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
@@ -58,37 +63,32 @@ async def on_ready():
         print("Creating directory")
         os.makedirs(logpath)
         print("Log directory created, creating log files")
-        f = open(keys.chanlogdir, "w+")
-        f.write("# Channel logs")
-        f.close()
+        try:
+            with open(keys.chandir, "x") as f:
+                print("Channel log created")
+        except FileExistsError:
+            print("Channel log already exists")
         print("- Channels")
-        f = open(keys.userlogdir, "w+")
-        f.write("# User logs")
-        f.close()
+        try:
+            with open(keys.chandir,"x") as f:
+                print("User log created")
+        except FileExistsError:
+            print("User log already exists")
         print("- Users")
         print("File creation complete")
         print("----------")
 
     # Check the log files exist, if not then create
     try:
-        chan = open(keys.chanlogdir, "r")
-        users = open(keys.userlogdir, "r")
-        print("Logs found")
-        print("----------")
-        chan.close()
-        users.close()
-    except IOError:
-        chan = open(keys.chanlogdir, "w+")
-        users = open(keys.userlogdir, "w+")
-        pickle.dump("", open(keys.usermanifestdir, "wb+"))
-        pickle.dump("", open(keys.chanmanifestdir, "wb+"))
-        print("Log files not found\nCreating log files")
-        chan.write("")
-        chan.close()
-        users.write("")
-        users.close()
-        print("Logs created")
-        print("----------")
+        with open(keys.chandir, "x") as f:
+            print("Channel log created")
+    except FileExistsError:
+        print("Channel log found")
+    try:
+        with open(keys.userdir, "x") as f:
+            print("User log created")
+    except FileExistsError:
+        print("User log found")
 
     # Get list of users
     # First loop through each server the bot is a part of, and pick out the specific server we want
@@ -106,11 +106,11 @@ async def on_ready():
                 pickle.dump(userDict, f)
             with open(keys.userdir, "rb") as f:
                 userDictFile = pickle.load(f)
-                print("User manifest:")
-                for user in userDictFile:
-                    print(userDictFile[user].name)
-                    print(userDictFile[user].userid)
-                    print("---")
+                print("hodor")
+                # for user in userDictFile:
+                #     print(userDictFile[user].name)
+                #     print(userDictFile[user].userid)
+                #     print("---")
 
 
 
