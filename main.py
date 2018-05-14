@@ -7,6 +7,7 @@ import os
 import keys
 import logging
 import pickle
+import database_io as db
 
 # Set error logging
 logger = logging.getLogger('discord')
@@ -56,39 +57,7 @@ async def on_ready():
         print('- %s' % s.name)
     print('----------')
 
-    # Check log file tree is in place, if not then make it
-    logpath = "./logs"
-    if not os.path.isdir(logpath):
-        print("Log folder not found")
-        print("Creating directory")
-        os.makedirs(logpath)
-        print("Log directory created, creating log files")
-        try:
-            with open(keys.chandir, "x") as f:
-                print("Channel log created")
-        except FileExistsError:
-            print("Channel log already exists")
-        print("- Channels")
-        try:
-            with open(keys.chandir,"x") as f:
-                print("User log created")
-        except FileExistsError:
-            print("User log already exists")
-        print("- Users")
-        print("File creation complete")
-        print("----------")
-
-    # Check the log files exist, if not then create
-    try:
-        with open(keys.chandir, "x") as f:
-            print("Channel log created")
-    except FileExistsError:
-        print("Channel log found")
-    try:
-        with open(keys.userdir, "x") as f:
-            print("User log created")
-    except FileExistsError:
-        print("User log found")
+    db.startup()
 
     # Get list of users
     # First loop through each server the bot is a part of, and pick out the specific server we want
