@@ -37,4 +37,9 @@ async def on_ready():
     db.startup(client)
 
 
+@client.event
+async def on_message(msg):
+    db.usrSendMsg(msg)
+
+
 client.run(keys.key)

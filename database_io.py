@@ -94,9 +94,46 @@ def startup(client):
                 dbfile[ch].name = dblive[ch].name
     with open(keys.chandir, "wb") as f:
         pickle.dump(dbfile, f)
-    with open(keys.chandir, "rb") as f:
-        dbfile = pickle.load(f)
-        for ch in dbfile:
-            print(dbfile[ch].name, dbfile[ch].isVoice)
     print("Channel update complete")
     print("----------")
+
+    # Populate/update channel dicts within User objects
+    with open(keys.userdir, "rb") as u:
+        userFile = pickle.load(u)
+    with open(keys.chandir, "rb") as ch:
+        chanFile = pickle.load(ch)
+    for u in userFile:
+        with open(keys.userdir, "rb") as usr:
+            userFileTemp = pickle.load(usr)
+        print("-", userFileTemp[u].name)
+        print("-", userFileTemp[u].voiceChannels)
+        for ch in chanFile:
+            if chanFile[ch].isVoice == True:
+                if ch not in userFile[u].voiceChannels:
+                    print("-- Adding voice channel", chanFile[ch].name, "to", userFileTemp[u].name)
+                    userFileTemp[u].voiceChannels[ch] = 0
+            else:
+                if ch not in userFileTemp[u].textChannels:
+                    print("-- Adding text channel", chanFile[ch].name, "to", userFileTemp[u].name)
+                    userFileTemp[u].textChannels[ch] = 0
+        with open(keys.userdir, "wb") as usr:
+            pickle.dump(userFileTemp, usr)
+    #
+    # with open(keys.userdir, "rb") as u:
+    #     userRead = pickle.load(u)
+    #     for user in userRead:
+    #         print(userRead[user].name)
+    #         print("-", userRead[user].voiceChannels)
+
+
+def usrSendMsg(message):
+    print(message.author, "sent a message")
+    with open(keys.userdir, "rb") as f:
+        msgFile = pickle.load(f)
+        oldMsgCount = msgFile[message.author.id].textChannels[message.channel.id]
+        print("Number of messages so far:", oldMsgCount)
+        oldMsgCount += 1
+        print("New message count:", oldMsgCount)
+        msgFile[message.author.id].textChannels[message.channel.id] = oldMsgCount
+    with open(keys.userdir, "wb") as f:
+        pickle.dump(msgFile, f)
