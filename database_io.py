@@ -58,8 +58,12 @@ def startup(client):
             pickle.dump(dblive, f)
     with open(keys.userdir, "rb") as f:
         dbfile = pickle.load(f)
-        for u in dbfile:
+        for u in dblive:
+            if u not in dbfile:
+                print("New user:", dblive[u].name)
+                dbfile[u] = dblive[u]
             if dbfile[u].name != dblive[u].name:
+                print("Updating", dbfile[c].name, "to", dblive[u].name)
                 dbfile[u].name = dblive[u].name
     with open(keys.userdir, "wb") as f:
         pickle.dump(dbfile, f)
