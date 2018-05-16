@@ -47,7 +47,6 @@ def startup(client):
     # First loop through each server the bot is a part of, and pick out the specific server we want
     for s in client.servers:
         if s.id == keys.serverid:
-            dbfile = {}
             dblive = {}
             for user in s.members:
                 dblive[user.id] = c.User(user.id)
@@ -65,4 +64,35 @@ def startup(client):
     with open(keys.userdir, "wb") as f:
         pickle.dump(dbfile, f)
     print("User update complete")
+
+    # Channel list update/population
+    # Same as before, just for channels
+    for s in client.servers:
+        if s.id == keys.serverid:
+            dblive = {}
+            for chan in s.channels:
+                dblive[chan.id] = c.Channel(chan.id)
+                dblive[chan.id].name = chan.name
+                dblive[chan.id].id = chan.id
+                dblive[chan.id].isVoice = chan.type == discord.ChannelType.voice
+    if os.stat(keys.chandir).st_size == 0:
+        print("Channel log empty, populating...")
+        with open(keys.chandir, "wb") as f:
+            pickle.dump(dblive, f)
+    with open(keys.chandir, "rb") as f:
+        dbfile = pickle.load(f)
+        for ch in dblive:
+            if ch not in dbfile:
+                print("New channel:", dblive[ch].name)
+                dbfile[ch] = dblive[ch]
+            if dbfile[ch].name != dblive[ch].name:
+                print("Updating", dbfile[ch].name, "to", dblive[ch].name)
+                dbfile[ch].name = dblive[ch].name
+    with open(keys.chandir, "wb") as f:
+        pickle.dump(dbfile, f)
+    with open(keys.chandir, "rb") as f:
+        dbfile = pickle.load(f)
+        for ch in dbfile:
+            print(dbfile[ch].name, dbfile[ch].isVoice)
+    print("Channel update complete")
     print("----------")
